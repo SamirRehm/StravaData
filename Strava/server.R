@@ -28,4 +28,6 @@ server <- function(input, output) {
     p<-plot_ly(data = distancePerWeek, x=~WeekStart, y=~Distance, type='bar') %>%
       layout(title = "Distance per week", xaxis = list(title = "Week"), yaxis = list(title = "Distance (km)"))
   })
+  
+  
 }
