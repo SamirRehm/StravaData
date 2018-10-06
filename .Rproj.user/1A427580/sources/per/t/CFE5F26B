@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1538786891166.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4029441287",
+    "id" : "CFE5F26B",
+    "lastKnownWriteTime" : 1538797267,
+    "last_content_update" : 1538797267843,
+    "path" : "~/StravaData/Strava/ui.R",
+    "project_path" : "Strava/ui.R",
+    "properties" : {
+        "cursorPosition" : "7,26",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

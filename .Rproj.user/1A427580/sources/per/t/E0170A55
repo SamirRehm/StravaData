@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1538794393615.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1255658751",
+    "id" : "E0170A55",
+    "lastKnownWriteTime" : 1538765545,
+    "last_content_update" : 1538765545,
+    "path" : "~/GitHub/NHLData/server.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "212,20",
+        "scrollLine" : "204"
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

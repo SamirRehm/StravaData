@@ -1,0 +1,9 @@
+{
+    "path" : "~/StravaData",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}
