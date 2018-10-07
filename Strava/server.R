@@ -44,6 +44,9 @@ server <- function(session, input, output) {
      p <- p %>% add_trace(p, x = dates, y = integer(length(dates)), showlegend = F)  %>%
        layout(title = "Distance per week", xaxis = list(title = "Week"), yaxis = list(title = "Distance (km)"), barmode='stack')
      runTypes = c('warm', 'cool', 'interval', 'tempo', 'fartlek', 'long')
+     colours = c('rgba(160,70, 255,0.6)', 'rgba(100,255,100,0.6)', 'rgba(255, 100, 100, 0.6)', 'rgba(255, 255, 100, 0.6)',
+                 'rgba(255, 100, 255, 0.6)', 'rgba(50, 150, 255, 0.6)')
+     names = c('Warm-up', 'Cool-down', 'Intervals', 'Tempo run', 'Fartlek', 'Long Run')
      for(i in 1:length(runTypes)) {
        print(grep(runTypes[[i]], stats$name, ignore.case=TRUE))
        runsOfType = stats[grep(runTypes[[i]], stats$name, ignore.case=TRUE),]
@@ -51,7 +54,7 @@ server <- function(session, input, output) {
        if(nrow(runsOfType) > 0) {
          p <- p %>% add_trace (p, x=runsOfType$start_date_local, y=runsOfType$distance, type='bar', 
                               marker = list(line = list(color = 'rgb(8,48,107)', width = 2), 
-                                            color = 'rgba(160,70, 255,0.6)'))
+                              color = colours[[i]]), name = names[[i]])
        }
      }
      p
