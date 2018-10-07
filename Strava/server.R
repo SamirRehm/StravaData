@@ -41,15 +41,20 @@ server <- function(session, input, output) {
      dates <- seq(stats$WeekStart[[1]], stats$WeekStart[[1]] + 6, by = "day")
      p <- plot_ly(data = stats, type = "bar", hoverinfo = "all")
      
-     p <- p %>% add_trace(p, x = dates, y = integer(length(dates)), showlegend = F)
-
-     WarmupRuns = stats[grep("warm", stats$name, ignore.case=TRUE),]
-     if(nrow(WarmupRuns) > 0) {
-       p<- p %>% add_trace (p, x=WarmupRuns$start_date_local, y=WarmupRuns$distance, type='bar', 
-                            marker = list(line = list(color = 'rgb(8,48,107)', width = 2), 
-                                          color = 'rgba(160,70, 255,0.6)')) %>%
-         layout(title = "Distance per week", xaxis = list(title = "Week"), yaxis = list(title = "Distance (km)")) 
+     p <- p %>% add_trace(p, x = dates, y = integer(length(dates)), showlegend = F)  %>%
+       layout(title = "Distance per week", xaxis = list(title = "Week"), yaxis = list(title = "Distance (km)"), barmode='stack')
+     runTypes = c('warm', 'cool', 'interval', 'tempo', 'fartlek', 'long')
+     for(i in 1:length(runTypes)) {
+       print(grep(runTypes[[i]], stats$name, ignore.case=TRUE))
+       runsOfType = stats[grep(runTypes[[i]], stats$name, ignore.case=TRUE),]
+       print(nrow(runsOfType))
+       if(nrow(runsOfType) > 0) {
+         p <- p %>% add_trace (p, x=runsOfType$start_date_local, y=runsOfType$distance, type='bar', 
+                              marker = list(line = list(color = 'rgb(8,48,107)', width = 2), 
+                                            color = 'rgba(160,70, 255,0.6)'))
+       }
      }
+     p
   })
   
   
