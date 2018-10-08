@@ -1,7 +1,7 @@
 ## ui.R ##
 library(shinydashboard)
 library(plotly)
-
+library(DT)
 title <- tags$a(tags$img(src="strava.png", height = '50', width = '150'), target="_blank")
 
 dashboardPage(
@@ -41,9 +41,13 @@ dashboardPage(
           infoBoxOutput("ActiveTimeBox", width=12)
         ),
         column(
-          width=10, offset = 0, style='padding:0px;',
-          box(plotlyOutput("runPieChart"))
-        )  
+          width=3, offset = 0, style='padding:0px;',
+          box(plotlyOutput("runPieChart", height = 280), width=12)
+        ),
+        column(
+          width = 7, offset = 0, style='padding:0px;',
+          box(DTOutput("WeekSummary"), width = 12)
+        )
     )
   )
   )

@@ -7,6 +7,7 @@ library(plyr)
 library(sp)
 library(googleway)
 library(dplyr)
+library(DT)
 server <- function(session, input, output) { 
   map_key <- 'AIzaSyC2_ZQpyvUMYMm2FZh3HouwqavsnF8QRG4'
   
@@ -94,7 +95,7 @@ server <- function(session, input, output) {
      stats = weekStats()
      totalTimeInSeconds = sum(stats$elapsed_time)
      infoBox(
-       "Active Time", paste(floor(totalTimeInSeconds/3600), "hours,", round((totalTimeInSeconds/3600-floor(totalTimeInSeconds/3600))*60),"minutes"), icon = icon("time", lib = "glyphicon"),
+       "Active Time", paste(floor(totalTimeInSeconds/3600), "hours,", round((totalTimeInSeconds/3600-floor(totalTimeInSeconds/3600))*60),"min"), icon = icon("time", lib = "glyphicon"),
        color = "green"
      )
    })
@@ -108,9 +109,21 @@ server <- function(session, input, output) {
        distancePerType[[i]] = sum(stats[grep(runTypes[[i]], stats$name, ignore.case=TRUE),]$distance)
      }
      pieChartData = data.frame(names, distancePerType)
-     p <- plot_ly(pieChartData, labels=~names, values = ~distancePerType, type='pie')
+     p <- plot_ly(pieChartData, labels=~names, values = ~round(distancePerType, digits=2), type='pie', 
+                  textposition = 'inside',
+                  textinfo = 'label+percent+value',
+                  insidetextfont = list(color = '#FFFFFF'),
+                  marker = list(colors = colors,
+                                line = list(color = '#FFFFFF', width = 1)),
+                  #The 'pull' attribute can also be used to create space between the sectors
+                  showlegend = FALSE) %>% layout(title = "Distance per run type")
      
    })
+   
+   output$WeekSummary = DT::renderDataTable({
+     stats = weekStats()
+     stats[,c(1,2,3,4,7)]
+   }, options = list(dom = 'tp'))
   
   
 }
