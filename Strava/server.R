@@ -18,11 +18,11 @@ server <- function(session, input, output) {
   RActivites$type[grep('tennis', RActivites$name, ignore.case = TRUE)] = 'Tennis'
   RActivites$start_date_local <- strtrim(RActivites$start_date_local, 10)
 
-  RActivites$Pace <- RActivites$moving_time/RActivites$distance/60*1000
-  RActivites$Pace <- paste("<b>", floor(RActivites$Pace), ":", str_pad(round((RActivites$Pace - floor(RActivites$Pace))*60), 2, pad = "0"), "/km", "\nHR:", RActivites$average_heartrate, "</b>", sep = "")
+  RActivites$PaceNumeric <- RActivites$moving_time/RActivites$distance/60*1000
+  RActivites$Pace <- paste("<b>", floor(RActivites$PaceNumeric), ":", str_pad(round((RActivites$PaceNumeric - floor(RActivites$PaceNumeric))*60), 2, pad = "0"), "/km", "\nHR:", RActivites$average_heartrate, "</b>", sep = "")
   RActivites$distance <- RActivites$distance/1000.0
   
-  RunningData <- RActivites[,c(3,4,5,6,7,8,14,49)]
+  RunningData <- RActivites[,c(3,4,5,6,7,8,14,47,49,50,51,10)]
   i <- rep(RunningData$start_date_local[[1]], nrow(RunningData))
   RunningData$Week <- as.numeric(floor(difftime(RunningData$start_date_local, i, units = "weeks") + 0.01) + 1)
   RunningData$WeekStart = as.Date("2018-02-26") + (RunningData$Week-1) * 7
@@ -122,8 +122,36 @@ server <- function(session, input, output) {
    
    output$WeekSummary = DT::renderDataTable({
      stats = weekStats()
-     stats[,c(1,2,3,4,7)]
-   }, options = list(dom = 'tp'))
+     stats$PaceNumeric = paste(floor(stats$PaceNumeric), ":", str_pad(round((stats$PaceNumeric - floor(stats$PaceNumeric))*60),2,pad="0"), sep = "")
+     stats[,c(7,1,2,3,9)]
+   }, options = list(dom = 'tp'), selection = "single", rownames = FALSE, class = "compact")
+   
+   observeEvent(input$WeekSummary_rows_selected, {
+     stats = weekStats()
+     print(stats[input$WeekSummary_rows_selected,])
+     stream_url = paste("https://www.strava.com/api/v3/activities/", stats[input$WeekSummary_rows_selected,]$id,
+                 "/streams?keys=time,distance,velocity_smooth,heartrate&key_by_type=true&", "access_token=738ba7d3a2a53c870f699ae5a297383eef11f537", sep = "")
+     Activity <- fromJSON(rawToChar(GET(url = stream_url)$content))
+     DistanceStream <- Activity$distance$data
+     TimeStream <- Activity$time$data
+     VelocityStream <- Activity$velocity_smooth$data
+     HeartStream <- Activity$heartrate$data
+     Activity = data.frame(DistanceStream, TimeStream, VelocityStream, HeartStream)
+     output$activityPacePlot = renderPlotly({
+       ay <- list(
+         overlaying = "y",
+         side = "right",
+         title = "Heart Rate (bpm)"
+       )
+       p <- plot_ly(data=Activity, x=~TimeStream/60, y=~VelocityStream, type='scatter', mode="line", name="Raw Data") %>%
+         layout(xaxis = list(title="Time (minutes)"), yaxis = list(title="Speed (m/s)", range=c(2,7), autorange = F, autorange= "reversed"),
+                yaxis2=ay, legend=list(orientation='h'))
+       smooth <- smooth.spline(Activity$TimeStream/60, VelocityStream, spar = input$`Smooth factor`)
+       smoothData <- data.frame(smooth$x, smooth$y)
+       p <- p %>% add_trace(data=Activity, x=~TimeStream/60, y=~HeartStream, type='scatter', mode="line", name="Heart Rate", yaxis="y2")
+       p <- p %>% add_trace(smoothData, x=smoothData$smooth.x, y=smoothData$smooth.y, name = 'Smoothened Data')
+     })
+   })
   
   
 }
