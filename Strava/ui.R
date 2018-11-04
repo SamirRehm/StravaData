@@ -59,7 +59,8 @@ dashboardPage(
             ),
             column(
               width = 2,
-              box(sliderInput("Smooth factor", "Smoothening Factor", 0, 2, 1, step = 0.1), width = 12)
+              box(sliderInput("Smooth factor", "Smoothening Factor", 0, 2, 1, step = 0.1), width = 12),
+              box(textInput("Segments", "Enter Segment Times"), width=12)
             )
           )
   )

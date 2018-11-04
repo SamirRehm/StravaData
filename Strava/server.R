@@ -145,11 +145,20 @@ server <- function(session, input, output) {
        )
        p <- plot_ly(data=Activity, x=~TimeStream/60, y=~VelocityStream, type='scatter', mode="line", name="Raw Data") %>%
          layout(xaxis = list(title="Time (minutes)"), yaxis = list(title="Speed (m/s)", range=c(2,7), autorange = F, autorange= "reversed"),
-                yaxis2=ay, legend=list(orientation='h'))
+                yaxis2=ay, legend=list(orientation='h'), margin=list(r=50))
        smooth <- smooth.spline(Activity$TimeStream/60, VelocityStream, spar = input$`Smooth factor`)
        smoothData <- data.frame(smooth$x, smooth$y)
        p <- p %>% add_trace(data=Activity, x=~TimeStream/60, y=~HeartStream, type='scatter', mode="line", name="Heart Rate", yaxis="y2")
        p <- p %>% add_trace(smoothData, x=smoothData$smooth.x, y=smoothData$smooth.y, name = 'Smoothened Data')
+       segment_times <- eventReactive(input$textButton, {
+         input$Segments
+       })
+       
+       output$segmentPace <- renderDataTable({
+         times <- strsplit(segment_times, " ")[[1]]
+         data.frame(times)
+       })
+       p
      })
    })
   
