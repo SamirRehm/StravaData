@@ -11,11 +11,13 @@ library(DT)
 server <- function(session, input, output) { 
   map_key <- 'AIzaSyC2_ZQpyvUMYMm2FZh3HouwqavsnF8QRG4'
   
-  RActivites <- fromJSON(rawToChar(GET(url = "https://www.strava.com/api/v3/athlete/activities?after=1519601753&per_page=200&access_token=738ba7d3a2a53c870f699ae5a297383eef11f537&page=1")$content))
-  RActivites2 <- fromJSON(rawToChar(GET(url = "https://www.strava.com/api/v3/athlete/activities?after=1519601753&per_page=200&access_token=738ba7d3a2a53c870f699ae5a297383eef11f537&page=2")$content))
+  RActivites <- fromJSON(rawToChar(GET(url = "https://www.strava.com/api/v3/athlete/activities?after=1419601753&per_page=200&access_token=738ba7d3a2a53c870f699ae5a297383eef11f537&page=1")$content))
+  RActivites2 <- fromJSON(rawToChar(GET(url = "https://www.strava.com/api/v3/athlete/activities?after=1419601753&per_page=200&access_token=738ba7d3a2a53c870f699ae5a297383eef11f537&page=2")$content))
   RActivites = rbind_pages(list(RActivites, RActivites2))
   RActivites$type[grep('soccer', RActivites$name, ignore.case = TRUE)] = 'Soccer'
   RActivites$type[grep('tennis', RActivites$name, ignore.case = TRUE)] = 'Tennis'
+  RActivites$type[grep('elliptical', RActivites$name, ignore.case = TRUE)] = 'Elliptical'
+  RActivites$type[grep('stationary bike', RActivites$name, ignore.case = TRUE)] = 'Stationary Bike'
   RActivites$start_date_local <- strtrim(RActivites$start_date_local, 10)
 
   RActivites$PaceNumeric <- RActivites$moving_time/RActivites$distance/60*1000
@@ -23,17 +25,15 @@ server <- function(session, input, output) {
   RActivites$distance <- RActivites$distance/1000.0
   
   RunningData <- RActivites[,c(3,4,5,6,7,8,14,47,49,50,51,10)]
-  i <- rep(RunningData$start_date_local[[1]], nrow(RunningData))
+  i <- rep(as.Date(RunningData$start_date_local[[1]])+1, nrow(RunningData))
   RunningData$Week <- as.numeric(floor(difftime(RunningData$start_date_local, i, units = "weeks") + 0.01) + 1)
-  RunningData$WeekStart = as.Date("2018-02-26") + (RunningData$Week-1) * 7
+  RunningData$WeekStart = as.Date(RunningData$start_date_local[[1]])+1 + (RunningData$Week-1) * 7
   
-  distancePerWeek = RunningData %>% 
-    group_by(WeekStart) %>% 
-    summarise(Distance = sum(distance))
-  
+  distancePerWeek = ddply(RunningData[RActivites$type == 'Run',],~WeekStart,summarise, Distance=sum(distance))
   output$runs = plotly::renderPlotly({
     p<-plot_ly(data = distancePerWeek, x=~WeekStart, y=~Distance, type='bar') %>%
-      layout(title = "Distance per week", xaxis = list(title = "Week"), yaxis = list(title = "Distance (km)"))
+      layout(title = "Distance per week", xaxis = list(title = "Week", range=c(min(distancePerWeek$WeekStart),Sys.Date())), yaxis = list(title = "Distance (km)"))
+    p
   })
   
   updateSelectizeInput(session, 'Week', choices = rev(RunningData$WeekStart), server = TRUE, selected = rev(RunningData$WeekStart)[1])
