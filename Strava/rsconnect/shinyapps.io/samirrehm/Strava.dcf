@@ -1,0 +1,12 @@
+name: Strava
+title: Strava
+username:
+account: samirrehm
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 577932
+bundleId: 1824408
+url: https://samirrehm.shinyapps.io/Strava/
+when: 1547927813.78079
+asMultiple: FALSE
+asStatic: FALSE

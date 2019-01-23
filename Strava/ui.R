@@ -24,7 +24,7 @@ dashboardPage(
   ),
   dashboardBody(
     tabItems(
-      tabItem(tabName = 'allTime', box(plotlyOutput("runs", height = 300), width = 12)),
+      tabItem(tabName = 'allTime', box(plotlyOutput("runs", height = 300), width = 12), box(plotlyOutput("active_time_all_time", height = 300), width = 12)),
       tabItem(tabName = 'currWeek', 
               fluidRow(
                 column(
